@@ -1,6 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 
 // ═══════════════════════════════════════════════
+// RESPONSIVE HOOK
+// ═══════════════════════════════════════════════
+function useIsMobile() {
+  const [mobile, setMobile] = useState(window.innerWidth < 480);
+  useEffect(() => {
+    const fn = () => setMobile(window.innerWidth < 480);
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  }, []);
+  return mobile;
+}
+
+// ═══════════════════════════════════════════════
 // CIE ENGINE V6
 // ═══════════════════════════════════════════════
 function n15(v) { return ((v - 1) / 4) * 100; }
@@ -192,25 +205,29 @@ function Bar({ score, dark=false }) {
 }
 
 function Slider({ trait, value, onChange }) {
+  const isMobile = useIsMobile();
   const labels = ["","Very Low","Low","Average","High","Very High"];
   return (
-    <div style={{marginBottom:32}}>
+    <div style={{marginBottom:28}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-        <div style={{flex:1,paddingRight:12}}>
-          <div style={{fontSize:15,fontWeight:700,color:"#0A0A0A",letterSpacing:"-0.02em"}}>{trait.l}</div>
-          <div style={{fontSize:12,color:"#999",marginTop:3,lineHeight:1.4}}>{trait.h}</div>
+        <div style={{flex:1,paddingRight:10}}>
+          <div style={{fontSize:isMobile?14:15,fontWeight:700,color:"#0A0A0A",letterSpacing:"-0.02em"}}>{trait.l}</div>
+          <div style={{fontSize:11,color:"#999",marginTop:3,lineHeight:1.4}}>{trait.h}</div>
         </div>
-        <div style={{fontSize:11,fontWeight:700,color:"#BBB",textAlign:"right",minWidth:58,paddingTop:2,textTransform:"uppercase",letterSpacing:"0.06em"}}>{labels[value]}</div>
+        <div style={{fontSize:10,fontWeight:700,color:"#BBB",textAlign:"right",minWidth:50,paddingTop:2,textTransform:"uppercase",letterSpacing:"0.05em",flexShrink:0}}>{labels[value]}</div>
       </div>
-      <div style={{display:"flex",gap:6}}>
+      <div style={{display:"flex",gap:isMobile?5:6}}>
         {[1,2,3,4,5].map(v => (
           <button key={v} onClick={() => onChange(v)} style={{
-            flex:1, height:42, border:"1.5px solid",
+            flex:1, height:isMobile?48:42,
+            border:"1.5px solid",
             borderColor: value===v ? "#0A0A0A" : "#E5E5E5",
             background: value===v ? "#0A0A0A" : "white",
             color: value===v ? "white" : "#BBB",
-            borderRadius:10, fontSize:15, fontWeight:700,
+            borderRadius:10, fontSize:isMobile?16:15, fontWeight:700,
             cursor:"pointer", transition:"all 0.12s ease", fontFamily:"inherit",
+            WebkitTapHighlightColor:"transparent",
+            touchAction:"manipulation",
           }}>{v}</button>
         ))}
       </div>
@@ -222,6 +239,7 @@ function Slider({ trait, value, onChange }) {
 // MAIN APP
 // ═══════════════════════════════════════════════
 export default function NextMove() {
+  const isMobile = useIsMobile();
   const [screen, setScreen] = useState("land");
   const [step, setStep] = useState(0);
   const [A, setA] = useState({
@@ -247,30 +265,32 @@ export default function NextMove() {
 
   // ── LANDING ──────────────────────────────────
   if (screen==="land") return (
-    <div style={{...S.page, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"48px 24px"}}>
+    <div style={{...S.page, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding: isMobile ? "40px 20px" : "48px 24px"}}>
       <div style={{maxWidth:460, width:"100%"}}>
-        <div style={{fontSize:11,letterSpacing:"0.22em",color:"#AAA",textTransform:"uppercase",fontWeight:700,marginBottom:20,fontFamily:"'Helvetica Neue',sans-serif"}}>Career Intelligence · India</div>
-        <div style={{fontSize:68,fontWeight:900,color:"#0A0A0A",letterSpacing:"-0.05em",lineHeight:0.9,marginBottom:24,...S.serif}}>Next<br/>Move</div>
-        <div style={{width:40,height:1.5,background:"#0A0A0A",marginBottom:24}}/>
-        <p style={{fontSize:19,color:"#444",lineHeight:1.65,fontStyle:"italic",margin:0,...S.serif}}>
+        <div style={{fontSize:11,letterSpacing:"0.22em",color:"#AAA",textTransform:"uppercase",fontWeight:700,marginBottom:16}}>Career Intelligence · India</div>
+        <div style={{fontSize:isMobile?52:68,fontWeight:900,color:"#0A0A0A",letterSpacing:"-0.05em",lineHeight:0.9,marginBottom:20,...S.serif}}>Next<br/>Move</div>
+        <div style={{width:40,height:1.5,background:"#0A0A0A",marginBottom:20}}/>
+        <p style={{fontSize:isMobile?17:19,color:"#444",lineHeight:1.65,fontStyle:"italic",margin:0,...S.serif}}>
           "Choose what fits you.<br/>Not what others chose for you."
         </p>
-        <p style={{fontSize:14,color:"#888",lineHeight:1.8,margin:"28px 0 40px"}}>
+        <p style={{fontSize:13,color:"#888",lineHeight:1.8,margin:"24px 0 32px"}}>
           A structured assessment for Class 9–10 students in India.<br/>
           22 traits · 8 career paths · 4 exam readiness scores.<br/>
           One honest report.
         </p>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:40}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:32}}>
           {[["22","Traits measured"],["8","Career clusters"],["4","Exam paths"],["~8 min","To complete"]].map(([n,l]) => (
-            <div key={n} style={{padding:"16px 18px",background:"white",borderRadius:14,border:"1px solid #E8E8E8"}}>
-              <div style={{fontSize:24,fontWeight:900,color:"#0A0A0A",letterSpacing:"-0.04em",...S.serif}}>{n}</div>
-              <div style={{fontSize:11,color:"#AAA",marginTop:3,textTransform:"uppercase",letterSpacing:"0.06em"}}>{l}</div>
+            <div key={n} style={{padding:"14px 16px",background:"white",borderRadius:14,border:"1px solid #E8E8E8"}}>
+              <div style={{fontSize:isMobile?20:24,fontWeight:900,color:"#0A0A0A",letterSpacing:"-0.04em",...S.serif}}>{n}</div>
+              <div style={{fontSize:10,color:"#AAA",marginTop:3,textTransform:"uppercase",letterSpacing:"0.06em"}}>{l}</div>
             </div>
           ))}
         </div>
         <button onClick={() => setScreen("survey")} style={{
           width:"100%",padding:"17px",background:"#0A0A0A",color:"white",
-          border:"none",borderRadius:14,fontSize:15,fontWeight:700,cursor:"pointer",letterSpacing:"-0.01em",fontFamily:"inherit",
+          border:"none",borderRadius:14,fontSize:16,fontWeight:700,cursor:"pointer",
+          letterSpacing:"-0.01em",fontFamily:"inherit",
+          WebkitTapHighlightColor:"transparent", touchAction:"manipulation",
         }}>Begin Assessment →</button>
         <div style={{textAlign:"center",marginTop:14,fontSize:12,color:"#CCC"}}>Free · No login · No data stored</div>
       </div>
@@ -422,18 +442,19 @@ export default function NextMove() {
   if (screen==="result" && R) {
     const alignColor = {"Strong Alignment":"#16a34a","Moderate Alignment":"#d97706","Significant Misalignment":"#dc2626","No Declared Interest":"#888"};
     const TABS = ["overview","clusters","exams","plan"];
+    const px = isMobile ? "18px" : "24px";
 
     return (
       <div ref={topRef} style={S.page}>
         {/* Hero */}
-        <div style={{background:"#0A0A0A",padding:"48px 24px 40px",color:"white"}}>
+        <div style={{background:"#0A0A0A",padding:`40px ${px} 36px`,color:"white"}}>
           <div style={{maxWidth:580,margin:"0 auto"}}>
-            <div style={{fontSize:11,letterSpacing:"0.2em",color:"#555",textTransform:"uppercase",fontWeight:700,marginBottom:20}}>Your NextMove Report</div>
-            <div style={{fontSize:44,fontWeight:900,letterSpacing:"-0.04em",lineHeight:1.05,marginBottom:10,...S.serif}}>{R.primary.name}</div>
-            <div style={{fontSize:13,color:"#555",marginBottom:24}}>Primary Cluster · Score {R.primary.score} / 100</div>
+            <div style={{fontSize:11,letterSpacing:"0.2em",color:"#555",textTransform:"uppercase",fontWeight:700,marginBottom:16}}>Your NextMove Report</div>
+            <div style={{fontSize:isMobile?30:44,fontWeight:900,letterSpacing:"-0.04em",lineHeight:1.1,marginBottom:10,...S.serif}}>{R.primary.name}</div>
+            <div style={{fontSize:13,color:"#555",marginBottom:20}}>Primary Cluster · Score {R.primary.score} / 100</div>
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
               {[R.stream, R.conf, R.align!=="No Declared Interest"?R.align:null].filter(Boolean).map((tag,i) => (
-                <span key={i} style={{padding:"6px 14px",background:"#161616",borderRadius:20,fontSize:12,fontWeight:600,color:i===2?(alignColor[tag]||"#AAA"):"#AAA"}}>{tag}</span>
+                <span key={i} style={{padding:"6px 12px",background:"#161616",borderRadius:20,fontSize:11,fontWeight:600,color:i===2?(alignColor[tag]||"#AAA"):"#AAA"}}>{tag}</span>
               ))}
             </div>
           </div>
@@ -444,48 +465,49 @@ export default function NextMove() {
           <div style={{maxWidth:580,margin:"0 auto",display:"flex"}}>
             {TABS.map(t => (
               <button key={t} onClick={() => setTab(t)} style={{
-                flex:1,padding:"15px 8px",border:"none",background:"none",
-                fontSize:12,fontWeight:700,textTransform:"capitalize",letterSpacing:"0.04em",
+                flex:1,padding:isMobile?"12px 4px":"15px 8px",border:"none",background:"none",
+                fontSize:isMobile?11:12,fontWeight:700,textTransform:"capitalize",letterSpacing:"0.02em",
                 color:tab===t?"#0A0A0A":"#BBB",
                 borderBottom:`2px solid ${tab===t?"#0A0A0A":"transparent"}`,
                 cursor:"pointer",fontFamily:"inherit",transition:"all 0.2s",
+                WebkitTapHighlightColor:"transparent",touchAction:"manipulation",
               }}>{t}</button>
             ))}
           </div>
         </div>
 
-        <div style={{maxWidth:580,margin:"0 auto",padding:"32px 24px 100px"}}>
+        <div style={{maxWidth:580,margin:"0 auto",padding:`28px ${px} 100px`}}>
 
           {/* OVERVIEW */}
           {tab==="overview" && (
             <div>
-              <div style={{background:"white",borderRadius:18,padding:"26px",border:"1px solid #E8E8E8",marginBottom:18}}>
-                <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:"#BBB",marginBottom:14}}>
+              <div style={{background:"white",borderRadius:18,padding:"22px",border:"1px solid #E8E8E8",marginBottom:16}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",color:"#BBB",marginBottom:12}}>
                   {A.advisory_mode==="hard" ? "Hard Truth Advisory" : "Advisory"}
                 </div>
-                <p style={{fontSize:15,lineHeight:1.8,color:"#222",margin:0,...S.serif,fontStyle:"italic"}}>"{R.advisory}"</p>
+                <p style={{fontSize:isMobile?14:15,lineHeight:1.8,color:"#222",margin:0,...S.serif,fontStyle:"italic"}}>"{R.advisory}"</p>
               </div>
 
               {[{rank:"Primary",d:R.primary,c:"#0A0A0A"},{rank:"Secondary",d:R.secondary,c:"#666"},{rank:"Tertiary",d:R.tertiary,c:"#BBB"}].map(({rank,d,c}) => (
-                <div key={rank} style={{background:"white",borderRadius:14,padding:"20px",border:"1px solid #E8E8E8",marginBottom:10}}>
+                <div key={rank} style={{background:"white",borderRadius:14,padding:"18px",border:"1px solid #E8E8E8",marginBottom:10}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                    <div>
+                    <div style={{flex:1,paddingRight:12}}>
                       <div style={{fontSize:10,color:"#CCC",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:4}}>{rank}</div>
-                      <div style={{fontSize:16,fontWeight:800,color:c,letterSpacing:"-0.02em"}}>{ICONS[d.name]} {d.name}</div>
+                      <div style={{fontSize:isMobile?13:16,fontWeight:800,color:c,letterSpacing:"-0.02em"}}>{ICONS[d.name]} {d.name}</div>
                     </div>
-                    <div style={{fontSize:34,fontWeight:900,color:c,letterSpacing:"-0.05em",...S.serif}}>{d.score}</div>
+                    <div style={{fontSize:isMobile?28:34,fontWeight:900,color:c,letterSpacing:"-0.05em",...S.serif,flexShrink:0}}>{d.score}</div>
                   </div>
                   <Bar score={d.score}/>
                 </div>
               ))}
 
-              <div style={{background:"white",borderRadius:14,padding:"20px",border:"1px solid #E8E8E8",marginTop:8,marginBottom:18}}>
+              <div style={{background:"white",borderRadius:14,padding:"18px",border:"1px solid #E8E8E8",marginTop:8,marginBottom:16}}>
                 <div style={{fontSize:10,color:"#BBB",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:6}}>Recommended Stream — Class 11</div>
-                <div style={{fontSize:26,fontWeight:900,color:"#0A0A0A",letterSpacing:"-0.03em",marginBottom:18,...S.serif}}>{R.stream}</div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                <div style={{fontSize:isMobile?20:26,fontWeight:900,color:"#0A0A0A",letterSpacing:"-0.03em",marginBottom:16,...S.serif}}>{R.stream}</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:isMobile?8:10}}>
                   {Object.entries(R.streamScores).map(([s,sc]) => (
                     <div key={s}>
-                      <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:5}}>
+                      <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:5}}>
                         <span style={{color:"#AAA"}}>{s}</span>
                         <span style={{fontWeight:800,color:"#0A0A0A"}}>{sc}</span>
                       </div>
@@ -496,7 +518,7 @@ export default function NextMove() {
               </div>
 
               {R.finWarn && (
-                <div style={{background:"#FFFBEB",border:"1px solid #FDE68A",borderRadius:14,padding:"18px 20px"}}>
+                <div style={{background:"#FFFBEB",border:"1px solid #FDE68A",borderRadius:14,padding:"16px 18px"}}>
                   <div style={{fontSize:10,fontWeight:700,color:"#92400E",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8}}>Financial Consideration</div>
                   <p style={{fontSize:13,color:"#78350F",margin:0,lineHeight:1.7}}>{R.finWarn}</p>
                 </div>
@@ -507,15 +529,15 @@ export default function NextMove() {
           {/* CLUSTERS */}
           {tab==="clusters" && (
             <div>
-              <p style={{fontSize:13,color:"#999",marginBottom:24,lineHeight:1.7}}>All 8 career clusters ranked by your trait profile. Penalty logic applied for critical weak traits.</p>
+              <p style={{fontSize:13,color:"#999",marginBottom:20,lineHeight:1.7}}>All 8 career clusters ranked by your trait profile. Penalty logic applied for critical weak traits.</p>
               {R.allClusters.map(({name,score},i) => (
-                <div key={name} style={{background:"white",borderRadius:13,padding:"18px 20px",border:"1px solid #E8E8E8",marginBottom:10}}>
+                <div key={name} style={{background:"white",borderRadius:13,padding:"16px 18px",border:"1px solid #E8E8E8",marginBottom:10}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-                    <div style={{display:"flex",alignItems:"center",gap:12}}>
-                      <div style={{fontSize:11,fontWeight:800,color:"#DDD",width:22}}>#{i+1}</div>
-                      <div style={{fontSize:14,fontWeight:700,color:i===0?"#0A0A0A":"#555"}}>{ICONS[name]} {name}</div>
+                    <div style={{display:"flex",alignItems:"center",gap:10,flex:1,paddingRight:12}}>
+                      <div style={{fontSize:10,fontWeight:800,color:"#DDD",width:20,flexShrink:0}}>#{i+1}</div>
+                      <div style={{fontSize:isMobile?13:14,fontWeight:700,color:i===0?"#0A0A0A":"#555"}}>{ICONS[name]} {name}</div>
                     </div>
-                    <div style={{fontSize:26,fontWeight:900,color:i===0?"#0A0A0A":"#CCC",letterSpacing:"-0.04em",...S.serif}}>{score}</div>
+                    <div style={{fontSize:isMobile?22:26,fontWeight:900,color:i===0?"#0A0A0A":"#CCC",letterSpacing:"-0.04em",...S.serif,flexShrink:0}}>{score}</div>
                   </div>
                   <Bar score={score}/>
                 </div>
@@ -526,22 +548,22 @@ export default function NextMove() {
           {/* EXAMS */}
           {tab==="exams" && (
             <div>
-              <p style={{fontSize:13,color:"#999",marginBottom:24,lineHeight:1.7}}>Readiness scores for 4 major competitive exam paths. Based on current trait profile — not preparation level.</p>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:24}}>
+              <p style={{fontSize:13,color:"#999",marginBottom:20,lineHeight:1.7}}>Readiness scores for 4 major competitive exam paths. Based on current traits — not preparation level.</p>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
                 {Object.entries(R.exams).map(([name,data]) => (
-                  <div key={name} style={{background:data.bg,borderRadius:14,padding:"18px",border:`1px solid ${data.color}22`}}>
-                    <div style={{fontSize:10,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>{name}</div>
-                    <div style={{fontSize:38,fontWeight:900,color:data.color,letterSpacing:"-0.05em",...S.serif}}>{data.score}</div>
-                    <div style={{fontSize:11,color:data.color,fontWeight:700,marginTop:4,textTransform:"uppercase",letterSpacing:"0.08em"}}>{data.label}</div>
+                  <div key={name} style={{background:data.bg,borderRadius:14,padding:isMobile?"14px":"18px",border:`1px solid ${data.color}22`}}>
+                    <div style={{fontSize:10,fontWeight:700,color:"#888",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:6}}>{name}</div>
+                    <div style={{fontSize:isMobile?32:38,fontWeight:900,color:data.color,letterSpacing:"-0.05em",...S.serif}}>{data.score}</div>
+                    <div style={{fontSize:10,color:data.color,fontWeight:700,marginTop:4,textTransform:"uppercase",letterSpacing:"0.06em"}}>{data.label}</div>
                   </div>
                 ))}
               </div>
-              <div style={{background:"white",borderRadius:14,padding:"20px",border:"1px solid #E8E8E8"}}>
-                <div style={{fontSize:10,fontWeight:700,color:"#BBB",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:14}}>Score Key</div>
+              <div style={{background:"white",borderRadius:14,padding:"18px",border:"1px solid #E8E8E8"}}>
+                <div style={{fontSize:10,fontWeight:700,color:"#BBB",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:12}}>Score Key</div>
                 {[["80+","Strong","#16a34a","Foundational traits are there. Execution is the variable."],["60–79","Moderate","#d97706","Direction is right but specific areas need focused work."],["40–59","Needs Work","#dc2626","Significant improvement needed before serious exam prep."],["<40","Not Ready","#7f1d1d","Foundational gaps exist. Address these before choosing this path."]].map(([r,l,c,desc]) => (
-                  <div key={r} style={{display:"flex",gap:14,marginBottom:12,alignItems:"flex-start"}}>
-                    <div style={{fontSize:13,fontWeight:900,color:c,minWidth:42,...S.serif}}>{r}</div>
-                    <div style={{fontSize:13,color:"#666",lineHeight:1.5}}><strong style={{color:c}}>{l}</strong> — {desc}</div>
+                  <div key={r} style={{display:"flex",gap:12,marginBottom:12,alignItems:"flex-start"}}>
+                    <div style={{fontSize:13,fontWeight:900,color:c,minWidth:38,...S.serif,flexShrink:0}}>{r}</div>
+                    <div style={{fontSize:12,color:"#666",lineHeight:1.5}}><strong style={{color:c}}>{l}</strong> — {desc}</div>
                   </div>
                 ))}
               </div>
@@ -551,30 +573,31 @@ export default function NextMove() {
           {/* PLAN */}
           {tab==="plan" && (
             <div>
-              <div style={{background:"#0A0A0A",borderRadius:18,padding:"22px 24px",marginBottom:24}}>
+              <div style={{background:"#0A0A0A",borderRadius:18,padding:"20px 22px",marginBottom:20}}>
                 <div style={{fontSize:10,fontWeight:700,color:"#555",textTransform:"uppercase",letterSpacing:"0.14em",marginBottom:6}}>Your Focus Area</div>
-                <div style={{fontSize:24,fontWeight:900,color:"white",letterSpacing:"-0.03em",...S.serif}}>{R.primary.name}</div>
+                <div style={{fontSize:isMobile?20:24,fontWeight:900,color:"white",letterSpacing:"-0.03em",...S.serif}}>{R.primary.name}</div>
               </div>
 
-              <div style={{fontSize:10,fontWeight:700,color:"#BBB",textTransform:"uppercase",letterSpacing:"0.14em",marginBottom:16}}>3 Actions — Starting Now</div>
+              <div style={{fontSize:10,fontWeight:700,color:"#BBB",textTransform:"uppercase",letterSpacing:"0.14em",marginBottom:14}}>3 Actions — Starting Now</div>
               {R.plan.map((s,i) => (
-                <div key={i} style={{display:"flex",gap:18,background:"white",borderRadius:14,padding:"20px",border:"1px solid #E8E8E8",marginBottom:12}}>
-                  <div style={{fontSize:30,fontWeight:900,color:"#EBEBEB",flexShrink:0,letterSpacing:"-0.05em",...S.serif,lineHeight:1}}>0{i+1}</div>
-                  <div style={{fontSize:14,color:"#333",lineHeight:1.7,paddingTop:3}}>{s}</div>
+                <div key={i} style={{display:"flex",gap:16,background:"white",borderRadius:14,padding:"18px",border:"1px solid #E8E8E8",marginBottom:12}}>
+                  <div style={{fontSize:isMobile?24:30,fontWeight:900,color:"#EBEBEB",flexShrink:0,letterSpacing:"-0.05em",...S.serif,lineHeight:1}}>0{i+1}</div>
+                  <div style={{fontSize:14,color:"#333",lineHeight:1.7,paddingTop:2}}>{s}</div>
                 </div>
               ))}
 
               {R.diag && (
-                <div style={{background:"#FEF2F2",border:"1px solid #FECACA",borderRadius:14,padding:"18px 20px",marginTop:8,marginBottom:20}}>
+                <div style={{background:"#FEF2F2",border:"1px solid #FECACA",borderRadius:14,padding:"16px 18px",marginTop:8,marginBottom:20}}>
                   <div style={{fontSize:10,fontWeight:700,color:"#991B1B",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:8}}>Gap to Address</div>
                   <p style={{fontSize:13,color:"#7F1D1D",margin:0,lineHeight:1.7}}>{R.diag}</p>
                 </div>
               )}
 
               <button onClick={reset} style={{
-                width:"100%",marginTop:24,padding:"15px",background:"white",
+                width:"100%",marginTop:20,padding:"15px",background:"white",
                 border:"1.5px solid #E5E5E5",borderRadius:13,fontSize:14,fontWeight:700,
                 cursor:"pointer",color:"#AAA",fontFamily:"inherit",
+                WebkitTapHighlightColor:"transparent",touchAction:"manipulation",
               }}>↺ Retake Assessment</button>
             </div>
           )}
